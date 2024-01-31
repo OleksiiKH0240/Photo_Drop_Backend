@@ -1,6 +1,5 @@
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
 import { db } from "../databaseConnection";
-import { eq } from "drizzle-orm"
 import photographers from "../schemas/photographers";
 import users from "../schemas/users";
 

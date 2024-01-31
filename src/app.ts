@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { jwtOptionsCheck, saltRoundsCheck } from "./utils/authOptionsChecks";
+import { jwtOptionsCheck, saltRoundsCheck } from "./utils/checks/authOptionsChecks";
 import express from "express";
 import cors from "cors";
 import initialRep from "./database/repositories/InitialRep";
@@ -7,11 +7,13 @@ import userRouter from "./routers/UserRouter";
 import clientRouter from "./routers/ClientRouter";
 import photographerRouter from "./routers/PhotographerRouter";
 import errorHandlers from "./middlewares/ErrorHandlers";
+import { awsOptionsCheck } from "./utils/checks/awsOptionsChecks";
 
 
 const APP_PORT = Number(process.env.APP_PORT) || 80;
 jwtOptionsCheck();
 saltRoundsCheck();
+awsOptionsCheck();
 
 const app = express();
 

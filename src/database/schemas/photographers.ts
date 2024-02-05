@@ -1,11 +1,13 @@
 import mySchema from "./mySchema";
-import { integer, serial, varchar } from "drizzle-orm/pg-core";
-import users from "./users";
+import { serial, varchar } from "drizzle-orm/pg-core";
 
 
 const photographers = mySchema.table("photographers", {
     photographerId: serial("photographer_id").primaryKey(),
-    userId: integer("user_id").references(() => users.userId).notNull()
+    username: varchar("username", { length: 255 }).notNull().unique(),
+    password: varchar("password", { length: 255 }).notNull(),
+    fullname: varchar("fullname", { length: 255 }),
+    email: varchar("email", { length: 255 })
 })
 
 export default photographers;

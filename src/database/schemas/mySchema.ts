@@ -1,4 +1,4 @@
-import { db, PG_DATABASE } from "../databaseConnection";
+import { PG_DATABASE } from "../databaseConnection";
 import { pgSchema } from "drizzle-orm/pg-core";
 
 

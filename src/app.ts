@@ -7,7 +7,10 @@ import clientRouter from "./routers/ClientRouter";
 import photographerRouter from "./routers/PhotographerRouter";
 import errorHandlers from "./middlewares/ErrorHandlers";
 import { awsOptionsCheck } from "./utils/checks/awsOptionsChecks";
+import bot from "./services/TelegramBotService";
 
+
+bot;
 
 const APP_PORT = Number(process.env.APP_PORT) || 80;
 jwtOptionsCheck();

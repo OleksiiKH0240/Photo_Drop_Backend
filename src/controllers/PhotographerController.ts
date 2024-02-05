@@ -8,8 +8,8 @@ class PhotographerController {
     signUp = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const { username, password, email, fullname }: authInputType = req.body;
-            const { isPhotographerExists } = await photographerService.signUp(username, password, email, fullname);
-            if (isPhotographerExists === true) {
+            const { photographerExists } = await photographerService.signUp(username, password, email, fullname);
+            if (photographerExists === true) {
                 return res.status(400).json({ message: "user with this username already exist. try another username." })
             }
 
@@ -26,17 +26,17 @@ class PhotographerController {
         try {
             const { username, password }: authInputType = req.body;
 
-            const { isPhotographerExists, isPasswordValid, token } = await photographerService.logIn(username, password);
+            const { photographerExists, isPasswordValid, token } = await photographerService.logIn(username, password);
 
-            if (isPhotographerExists === false) {
+            if (photographerExists === false) {
                 return res.status(400).json({ message: "user with this username does not exist. try another username." });
             }
 
-            if (isPhotographerExists === true && isPasswordValid === false) {
+            if (photographerExists === true && isPasswordValid === false) {
                 return res.status(401).json({ message: "password is invalid." })
             }
 
-            if (isPhotographerExists === true && isPasswordValid === true && token !== undefined) {
+            if (photographerExists === true && isPasswordValid === true && token !== undefined) {
                 res.setHeader("authorization", token).status(200).json({
                     token,
                     message: "photographer was logged in."
@@ -62,6 +62,7 @@ class PhotographerController {
 
     uploadPhotos = async (req: Request & { photoS3Keys?: string[] }, res: Response, next: NextFunction) => {
         try {
+            // console.log(new Date().toUTCString(), new Date().getMilliseconds());
             // console.log(req.query);
             if (req.files === undefined) {
                 return res.status(400).json({ message: "no files were uploaded." });
@@ -70,9 +71,9 @@ class PhotographerController {
 
             const photoS3Keys = req.photoS3Keys!;
 
-            console.time("service.uploadPhotos");
+            // console.time("service.uploadPhotos");
             await photographerService.uploadPhotos(albumId, photoS3Keys);
-            console.timeEnd("service.uploadPhotos");
+            // console.timeEnd("service.uploadPhotos");
 
             res.status(200).json({ message: `${req.files.length} files were uploaded successfully.` });
         }

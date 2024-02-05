@@ -82,8 +82,7 @@ class PhotographersRep {
     getPhotosByAlbumId = async (albumId: number) => {
         return await this.dbClient.select({
             photoId: albumsPhotos.photoId,
-            photoS3Key: albumsPhotos.photoS3Key,
-            isAlbumIcon: albumsPhotos.isAlbumIcon,
+            photoS3Key: albumsPhotos.photoS3Key
         }).from(albumsPhotos).where(eq(albumsPhotos.albumId, albumId));
     }
 

@@ -3,6 +3,7 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 
 
 const authenticate = async (req: Request, res: Response, next: NextFunction) => {
+    // console.log(new Date().toUTCString(), new Date().getMilliseconds());
     let token = req.headers.authorization;
     if (token === undefined) {
         res.status(401).json({

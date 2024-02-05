@@ -6,10 +6,6 @@ import jwtDataGetters from "../utils/jwtDataGetters";
 import photographerRep from "../database/repositories/PhotographerRep";
 
 
-
-
-
-
 class PhotographerMiddleware {
     authValidation = async (req: Request, res: Response, next: NextFunction) => {
         const { username, password } = req.body;
@@ -45,6 +41,7 @@ class PhotographerMiddleware {
     // }
 
     uploadPhotosValidation = async (req: Request, res: Response, next: NextFunction) => {
+        // console.log(new Date().toUTCString(), new Date().getMilliseconds());
         const albumId = Number(req.query.albumId);
 
         if (Number.isNaN(albumId)) {
@@ -55,6 +52,7 @@ class PhotographerMiddleware {
             return res.status(400).json({ message: "album with given albumId does not exist." })
         }
 
+        // console.log(new Date().toUTCString(), new Date().getMilliseconds());
         next();
     }
 

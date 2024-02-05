@@ -15,12 +15,12 @@ class PhotographerService {
             await photographerRep.addPhotographer(username, hashedPassword, email, fullname);
 
             return {
-                isPhotographerExists: false
+                photographerExists: false
             }
         }
         else {
             return {
-                isPhotographerExists: true
+                photographerExists: true
             }
         }
 
@@ -48,14 +48,14 @@ class PhotographerService {
                     },
                     JWT_SECRET, { expiresIn: ttl });
                 return {
-                    isPhotographerExists: true,
+                    photographerExists: true,
                     isPasswordValid: true,
                     token
                 }
             }
             else {
                 return {
-                    isPhotographerExists: true,
+                    photographerExists: true,
                     isPasswordValid: false,
                     token: undefined
                 }
@@ -63,7 +63,7 @@ class PhotographerService {
         }
         else {
             return {
-                isPhotographerExists: false,
+                photographerExists: false,
                 isPasswordValid: undefined,
                 token: undefined
             }
@@ -86,6 +86,7 @@ class PhotographerService {
     uploadPhotos = async (albumId: number, photoS3Keys: string[]) => {
         // console.time("add photos to album, get photos ids");
         let photoIds = (await photographerRep.addPhotosToAlbum(albumId, photoS3Keys)).map(el => el.photoId);
+        // console.log("photoIds", photoIds);
         if (photoIds.length === 0) {
             photoIds = (await photographerRep.getPhotosByAlbumId(albumId)).map(el => el.photoId);
         }
@@ -94,8 +95,8 @@ class PhotographerService {
         // console.time("get clients ids");
         const clientIds = (await photographerRep.getClientsIdsByAlbumId(albumId)).map(el => el.clientId);
         // console.timeEnd("get clients ids");
-        // console.log("photoIds", photoIds);
 
+        // console.log(photoIds, clientIds);
         // console.time("add photo client rel");
         photographerRep.addPhotoClientRelations(photoIds, clientIds)
         // console.timeEnd("add photo client rel");
@@ -106,7 +107,6 @@ class PhotographerService {
         const rawResult = await photographerRep.getPhotosByAlbumId(albumId);
         const result: {
             photoS3Key: string,
-            isAlbumIcon: boolean,
             signedUrl: string
         }[] = [];
 

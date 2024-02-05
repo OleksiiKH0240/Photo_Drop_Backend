@@ -17,14 +17,16 @@ class ClientsRep {
             {
                 clientId: -1,
                 username: "+380963363207",
-                password: "123456",
+                otp: "123456",
+                otpExpiredTimestamp: new Date(Date.now() + 3000),
                 email: "client1@gmail.com",
                 fullname: "client1_fullname"
             },
             {
                 clientId: -2,
                 username: "+380963323507",
-                password: "123456",
+                otp: "123456",
+                otpExpiredTimestamp: new Date(Date.now() + 5000),
                 email: "client2@gmail.com",
                 fullname: "client2_fullname"
             },
@@ -32,12 +34,21 @@ class ClientsRep {
         console.log("test clients were created successfully.");
     }
 
-    getClients = async () => {
-        return await this.dbClient.select().from(clients);
+    getClientByUsername = async (username: string) => {
+        return (await this.dbClient.select().from(clients).where(eq(clients.username, username)))[0];
     }
 
-    addClient = async (username: string, password: string, email?: string, fullname?: string) => {
-        await this.dbClient.insert(clients).values({ username, password, email, fullname });
+    hasClientWithUsername = async (username: string) => {
+        const client = await this.getClientByUsername(username);
+        return client === undefined ? false : true;
+    }
+
+    addClient = async (username: string, email?: string, fullname?: string) => {
+        await this.dbClient.insert(clients).values({ username, email, fullname });
+    }
+
+    setClientOtp = async (username: string, otp: string, otpExpiredTimestamp: Date) => {
+        await this.dbClient.update(clients).set({ otp, otpExpiredTimestamp }).where(eq(clients.username, username));
     }
 
     getAlbumsByClientId = async (clientId: number) => {

@@ -86,8 +86,8 @@ class PhotographersRep {
         }).from(albumsPhotos).where(eq(albumsPhotos.albumId, albumId));
     }
 
-    addPhotoClientRelations = async (photoIds: number[], clientIds: number[]) => {
-        const valsToInsert = fastCartesian([photoIds, clientIds]).map(el => ({ photoId: el[0], clientId: el[1] }));
+    addPhotoClientRelations = async (photosIds: number[], clientsIds: number[]) => {
+        const valsToInsert = fastCartesian([photosIds, clientsIds]).map(el => ({ photoId: el[0], clientId: el[1] }));
         await this.dbClient.insert(photoClientRelations).values(valsToInsert).onConflictDoNothing();
     }
 

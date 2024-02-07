@@ -101,12 +101,37 @@ class ClientController {
         }
     }
 
-    getAlbumsPhotos = async (req: Request, res: Response, next: NextFunction) => {
+    getAllAlbums = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const token = req.headers.authorization!;
 
-            const albumsPhotos = await clientService.getAlbumsPhotos(token);
+            const albumsPhotos = await clientService.getAllAlbums(token);
             res.status(200).json(albumsPhotos);
+        }
+        catch (error) {
+            next(error);
+        }
+    }
+
+    getAlbumById = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const albumId = Number(req.query.albumId);
+            const token = req.headers.authorization!;
+
+            const album = await clientService.getAlbumById(token, albumId);
+            res.status(200).json(album);
+        }
+        catch (error) {
+            next(error);
+        }
+    }
+
+    getAllPhotos = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const token = req.headers.authorization!;
+
+            const photos = await clientService.getAllPhotos(token);
+            res.status(200).json(photos);
         }
         catch (error) {
             next(error);
@@ -116,7 +141,7 @@ class ClientController {
     unlockPhoto = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const token = req.headers.authorization!;
-            const photoId = Number(req.body.photoId);
+            const photoId = Number(req.query.photoId);
             await clientService.unlockPhoto(token, photoId);
 
             res.status(200).json({ message: `photo with id: ${photoId} successfully unlocked.` });

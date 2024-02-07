@@ -35,9 +35,18 @@ class ClientMiddleware {
     }
 
     photoIdValidation = async (req: Request, res: Response, next: NextFunction) => {
-        const { photoId } = req.body;
-        if (photoId === undefined || Number.isNaN(Number(photoId))) {
+        const { photoId } = req.query;
+        if (photoId === undefined || photoId === "" || Number.isNaN(Number(photoId))) {
             return res.status(400).json({ message: "photoId request query parameters is missed or is not integer." });
+        }
+
+        next();
+    }
+
+    albumIdValidation = async (req: Request, res: Response, next: NextFunction) => {
+        const { albumId } = req.query;
+        if (albumId === undefined || albumId === "" || Number.isNaN(Number(albumId))) {
+            return res.status(400).json({ message: "albumId request query parameters is missed or is not integer." });
         }
 
         next();

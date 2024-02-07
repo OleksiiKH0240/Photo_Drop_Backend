@@ -5,6 +5,7 @@ import jwtDataGetters from "../utils/jwtDataGetters";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { GetObjectCommand } from "@aws-sdk/client-s3";
 import { s3Client, BUCKET_NAME } from "../config";
+import { generateSignedUrl } from "utils/s3Bucket";
 
 
 class PhotographerService {
@@ -103,6 +104,10 @@ class PhotographerService {
 
     }
 
+    addClientsToPhotos = async (clientsIds: number[], photosIds: number[]) => {
+        await photographerRep.addPhotoClientRelations(photosIds, clientsIds);
+    }
+
     getPhotosByAlbumId = async (albumId: number) => {
         const rawResult = await photographerRep.getPhotosByAlbumId(albumId);
         const result: {
@@ -112,13 +117,14 @@ class PhotographerService {
 
         for (const el of rawResult) {
             const { photoS3Key, } = el;
-            const command = new GetObjectCommand({ Bucket: BUCKET_NAME, Key: photoS3Key });
-            const signedUrl = await getSignedUrl(s3Client, command, { expiresIn: 60 });
+            const signedUrl = await generateSignedUrl(photoS3Key);
             result.push({ ...el, signedUrl });
         }
 
         return result;
     }
+
+
 }
 
 export default new PhotographerService();

@@ -28,6 +28,12 @@ photographerRouter.post("/uploadPhotos",
     photographerController.uploadPhotos
 );
 
+photographerRouter.post("/addClientsToPhotos",
+    authenticate,
+    photographerMiddleware.addClientsToPhotosValidation,
+    photographerController.addClientsToPhotos
+);
+
 photographerRouter.get("/getAllAlbums",
     authenticate,
     photographerController.getAllAlbums

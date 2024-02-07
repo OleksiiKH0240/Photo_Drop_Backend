@@ -41,9 +41,20 @@ clientRouter.post("/setName",
     clientController.setName
 );
 
-clientRouter.get("/getAlbumsPhotos",
+clientRouter.get("/getAllAlbums",
     authenticate,
-    clientController.getAlbumsPhotos
+    clientController.getAllAlbums
+);
+
+clientRouter.get("/getAlbumById",
+    authenticate,
+    clientMiddleware.albumIdValidation,
+    clientController.getAlbumById
+);
+
+clientRouter.get("/getAllPhotos",
+    authenticate,
+    clientController.getAllPhotos
 );
 
 clientRouter.post("/unlockPhoto",

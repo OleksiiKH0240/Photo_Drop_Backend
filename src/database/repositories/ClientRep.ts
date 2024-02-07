@@ -75,7 +75,7 @@ class ClientsRep {
         await this.dbClient.update(clients).set({ fullname }).where(eq(clients.clientId, clientId));
     }
 
-    getAlbumsPhotos = async (clientId: number) => {
+    getAllAlbums = async (clientId: number) => {
         const result = await this.dbClient.select({
             albumId: albums.albumId,
             albumName: albums.albumName,
@@ -95,6 +95,40 @@ class ClientsRep {
 
         // const result = Object.groupBy(rawResult, ({ albumId }) => albumId);
         return result;
+    }
+
+    getAlbumById = async (clientId: number, albumId: number) => {
+        const result = await this.dbClient.select({
+            albumId: albums.albumId,
+            albumName: albums.albumName,
+            albumLocation: albums.albumLocation,
+            photoId: albumsPhotos.photoId,
+            photoS3Key: albumsPhotos.photoS3Key,
+            isLocked: photoClientRelations.isLocked
+        }).
+            from(albumClientRelations).
+            innerJoin(albums, eq(albums.albumId, albumClientRelations.albumId)).
+            innerJoin(albumsPhotos, eq(albumsPhotos.albumId, albumClientRelations.albumId)).
+            innerJoin(photoClientRelations, and(
+                eq(photoClientRelations.photoId, albumsPhotos.photoId),
+                eq(photoClientRelations.clientId, albumClientRelations.clientId),
+            )).
+            where(and(
+                eq(albumClientRelations.clientId, clientId),
+                eq(albums.albumId, albumId)
+            ));
+
+        return result;
+    }
+
+    getAllPhotos = async (clientId: number) => {
+        return await this.dbClient.select({
+            photoId: albumsPhotos.photoId,
+            photoS3Key: albumsPhotos.photoS3Key,
+            isLocked: photoClientRelations.isLocked
+        }).from(photoClientRelations).
+            innerJoin(albumsPhotos, eq(albumsPhotos.photoId, photoClientRelations.photoId)).
+            where(eq(photoClientRelations.clientId, clientId));
     }
 
     unlockPhoto = async (clientId: number, photoId: number) => {

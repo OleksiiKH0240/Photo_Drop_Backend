@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { authInputType, createAlbumInputType } from "../types/PhotographerControllerTypes";
+import { addClientsToPhotosType, authInputType, createAlbumInputType } from "../types/PhotographerControllerTypes";
 import photographerService from "../services/PhotographerService";
 
 
@@ -50,7 +50,7 @@ class PhotographerController {
 
     createAlbum = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const { albumName, albumLocation, clientsIds }: createAlbumInputType = req.body;
+            const { albumName, albumLocation, clientsIds: clientsIds }: createAlbumInputType = req.body;
             const token = req.headers.authorization;
             const albumId = await photographerService.createAlbum(albumName, albumLocation, clientsIds, token!);
             res.status(200).json({ albumId, message: "album was added successfully." })
@@ -76,6 +76,18 @@ class PhotographerController {
             // console.timeEnd("service.uploadPhotos");
 
             res.status(200).json({ message: `${req.files.length} files were uploaded successfully.` });
+        }
+        catch (error) {
+            next(error);
+        }
+    }
+
+    addClientsToPhotos = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const { clientsIds, photosIds }: addClientsToPhotosType = req.body;
+
+            await photographerService.addClientsToPhotos(clientsIds, photosIds);
+            res.status(200).json({ message: `clients: [${clientsIds}] was successfully added to photos: [${photosIds}].` });
         }
         catch (error) {
             next(error);
@@ -109,6 +121,7 @@ class PhotographerController {
             next(error);
         }
     }
+
 
 }
 

@@ -5,6 +5,7 @@ import { getBotUsername } from "./TelegramBotService"
 import { GetObjectCommand } from "@aws-sdk/client-s3";
 import { BUCKET_NAME, s3Client } from "../config";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { generateSignedPhotos, generateSignedUrl } from "utils/s3Bucket";
 import "core-js";
 
 
@@ -17,7 +18,9 @@ class ClientService {
         }
 
         const botUsername = await getBotUsername();
-        const stage = process.env.STAGE || "dev"; // or it can be 'prod'
+        let stage = process.env.STAGE || "dev"; // or it can be 'prod'
+        stage = ["dev", "prod"].includes(stage) ? stage : "dev";
+
         const telegramBotLink = `https://t.me/${botUsername}?start=${stage}_${username}`;
         return { telegramBotLink };
     }
@@ -88,8 +91,7 @@ class ClientService {
 
         for (const el of rawResult) {
             const { photoS3Key, } = el;
-            const command = new GetObjectCommand({ Bucket: BUCKET_NAME, Key: photoS3Key });
-            const signedUrl = await getSignedUrl(s3Client, command, { expiresIn: 60 });
+            const signedUrl = await generateSignedUrl(photoS3Key);
             result.push({ ...el, signedUrl });
         }
 
@@ -108,10 +110,10 @@ class ClientService {
         await clientRep.setClientName(clientId, name);
     }
 
-    getAlbumsPhotos = async (token: string) => {
+    getAllAlbums = async (token: string) => {
         const clientId = jwtDataGetters.getClientId(token);
 
-        const albumsPhotosRaw = await clientRep.getAlbumsPhotos(clientId);
+        const albumsPhotosRaw = await clientRep.getAllAlbums(clientId);
 
         const albumsPhotosMap = Map.groupBy(albumsPhotosRaw, ({ albumId }) => albumId);
         let albumId, albumName, albumLocation, album;
@@ -121,17 +123,35 @@ class ClientService {
             ({ albumId, albumName, albumLocation } = albumPhotos[0]);
             album = {
                 albumId, albumName, albumLocation,
-                photos: await Promise.all(albumPhotos.map(async ({ photoId, photoS3Key, isLocked }) => {
-                    const command = new GetObjectCommand({ Bucket: BUCKET_NAME, Key: photoS3Key });
-                    const signedUrl = await getSignedUrl(s3Client, command, { expiresIn: 60 });
-                    return { photoId, photoS3Key, signedUrl, isLocked };
-                }))
+                photos: await Promise.all(albumPhotos.map(generateSignedPhotos))
             }
 
             albumsPhotos.push(album);
         }
 
         return albumsPhotos;
+    }
+
+    getAlbumById = async (token: string, albumId: number) => {
+        const clientId = jwtDataGetters.getClientId(token);
+        const albumPhotosRaw = await clientRep.getAlbumById(clientId, albumId);
+
+        const { albumName, albumLocation } = albumPhotosRaw[0];
+        const album = {
+            albumId, albumName, albumLocation,
+            photos: await Promise.all(albumPhotosRaw.map(generateSignedPhotos))
+        }
+
+        return album;
+    }
+
+    getAllPhotos = async (token: string) => {
+        const clientId = jwtDataGetters.getClientId(token);
+
+        const photosRaw = await clientRep.getAllPhotos(clientId);
+        const photos = await Promise.all(photosRaw.map(generateSignedPhotos));
+
+        return photos;
     }
 
     unlockPhoto = async (token: string, photoId: number) => {

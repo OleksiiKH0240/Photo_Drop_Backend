@@ -21,11 +21,20 @@ class PhotographerMiddleware {
 
     createAlbumValidation = async (req: Request, res: Response, next: NextFunction) => {
         const { albumName, albumLocation, clientsIds } = req.body;
-        if (albumName === undefined || albumLocation === undefined || clientsIds === undefined) {
-            return res.status(400).json({ message: "fields albumName or albumLocation or clientsIds are missed." })
+        if (albumName === undefined || albumLocation === undefined ||
+            clientsIds === undefined || !Array.isArray(clientsIds)) {
+            return res.status(400).json({ message: "fields albumName, albumLocation or clientsIds are missed." })
         }
         next();
+    }
 
+    addClientsToPhotosValidation = async (req: Request, res: Response, next: NextFunction) => {
+        const { clientsIds, photosIds } = req.body;
+        if (photosIds === undefined || !Array.isArray(photosIds) ||
+            clientsIds === undefined || !Array.isArray(clientsIds)) {
+            return res.status(400).json({ message: "fields photosIds, clientsIds are missed or have invalid type." })
+        }
+        next();
     }
 
     // getAlbumsByPhotographerIdValidation = async (req: Request, res: Response, next: NextFunction) => {

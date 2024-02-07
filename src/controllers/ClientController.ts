@@ -23,7 +23,7 @@ class ClientController {
                     { message: "one-time password is wrong." })
             }
 
-            return res.status(200).json(
+            return res.setHeader("authorization", token!).status(200).json(
                 {
                     token,
                     message: "client is successfully authenticated."
@@ -46,15 +46,85 @@ class ClientController {
         }
     }
 
-    // getClients = async (req: Request, res: Response, next: NextFunction) => {
-    //     try {
-    //         const clients = await clientRep.getClients();
-    //         res.status(200).json(clients);
-    //     }
-    //     catch (error) {
-    //         next(error);
-    //     }
-    // }
+    uploadSelfy = async (req: Request & { photoS3Keys?: string[] }, res: Response, next: NextFunction) => {
+        try {
+            if (req.files === undefined) {
+                return res.status(400).json({ message: "no selfies were specified." });
+            }
+
+            const photoS3Keys = req.photoS3Keys!;
+            const token = req.headers.authorization!;
+            await clientService.uploadSelfy(photoS3Keys, token);
+
+            res.status(200).json({ message: "selfy was uploaded successfully." })
+        }
+        catch (error) {
+            next(error);
+        }
+    }
+
+    getSelfies = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const token = req.headers.authorization!;
+
+            const selfies = await clientService.getSelfies(token);
+            res.status(200).json(selfies);
+        }
+        catch (error) {
+            next(error);
+        }
+    }
+
+    setNameEmail = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const { name, email }: { [key: string]: string } = req.body;
+            const token = req.headers.authorization!;
+
+            await clientService.setNameEmail(name, email, token);
+            res.status(200).json({ message: "name and email was set." })
+        }
+        catch (error) {
+            next(error);
+        }
+    }
+
+    setName = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const { name } = req.body;
+            const token = req.headers.authorization!;
+
+            await clientService.setName(name, token);
+            res.status(200).json({ message: "name was set." })
+        }
+        catch (error) {
+            next(error);
+        }
+    }
+
+    getAlbumsPhotos = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const token = req.headers.authorization!;
+
+            const albumsPhotos = await clientService.getAlbumsPhotos(token);
+            res.status(200).json(albumsPhotos);
+        }
+        catch (error) {
+            next(error);
+        }
+    }
+
+    unlockPhoto = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const token = req.headers.authorization!;
+            const photoId = Number(req.body.photoId);
+            await clientService.unlockPhoto(token, photoId);
+
+            res.status(200).json({ message: `photo with id: ${photoId} successfully unlocked.` });
+        }
+        catch (error) {
+            next(error);
+        }
+    }
 }
 
 export default new ClientController();

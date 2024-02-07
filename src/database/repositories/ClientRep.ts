@@ -1,8 +1,12 @@
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
 import { db } from "../databaseConnection";
-import { eq } from "drizzle-orm"
+import { and, eq } from "drizzle-orm"
 import clients from "../schemas/clients";
 import albumClientRelations from "../schemas/albumClientRelations";
+import selfies from "../schemas/selfies";
+import albums from "../schemas/albums";
+import albumsPhotos from "../schemas/albumsPhotos";
+import photoClientRelations from "database/schemas/photoClientRelations";
 
 
 class ClientsRep {
@@ -16,7 +20,7 @@ class ClientsRep {
         await this.dbClient.insert(clients).values([
             {
                 clientId: -1,
-                username: "+380963363207",
+                username: "380963363207",
                 otp: "123456",
                 otpExpiredTimestamp: new Date(Date.now() + 3000),
                 email: "client1@gmail.com",
@@ -24,7 +28,7 @@ class ClientsRep {
             },
             {
                 clientId: -2,
-                username: "+380963323507",
+                username: "380963323507",
                 otp: "123456",
                 otpExpiredTimestamp: new Date(Date.now() + 5000),
                 email: "client2@gmail.com",
@@ -53,6 +57,53 @@ class ClientsRep {
 
     getAlbumsByClientId = async (clientId: number) => {
         return await this.dbClient.select().from(albumClientRelations).where(eq(albumClientRelations.clientId, clientId))
+    }
+
+    addSelfy = async (clientId: number, photoS3Key: string) => {
+        await this.dbClient.insert(selfies).values({ clientId, photoS3Key }).onConflictDoNothing();
+    }
+
+    getSelfiesByClientId = async (clientId: number) => {
+        return await this.dbClient.select().from(selfies).where(eq(selfies.clientId, clientId));
+    }
+
+    setClientNameEmail = async (clientId: number, fullname: string, email: string) => {
+        await this.dbClient.update(clients).set({ fullname, email }).where(eq(clients.clientId, clientId));
+    }
+
+    setClientName = async (clientId: number, fullname: string) => {
+        await this.dbClient.update(clients).set({ fullname }).where(eq(clients.clientId, clientId));
+    }
+
+    getAlbumsPhotos = async (clientId: number) => {
+        const result = await this.dbClient.select({
+            albumId: albums.albumId,
+            albumName: albums.albumName,
+            albumLocation: albums.albumLocation,
+            photoId: albumsPhotos.photoId,
+            photoS3Key: albumsPhotos.photoS3Key,
+            isLocked: photoClientRelations.isLocked
+        }).
+            from(albumClientRelations).
+            innerJoin(albums, eq(albums.albumId, albumClientRelations.albumId)).
+            innerJoin(albumsPhotos, eq(albumsPhotos.albumId, albumClientRelations.albumId)).
+            innerJoin(photoClientRelations, and(
+                eq(photoClientRelations.photoId, albumsPhotos.photoId),
+                eq(photoClientRelations.clientId, albumClientRelations.clientId),
+            )).
+            where(eq(albumClientRelations.clientId, clientId));
+
+        // const result = Object.groupBy(rawResult, ({ albumId }) => albumId);
+        return result;
+    }
+
+    unlockPhoto = async (clientId: number, photoId: number) => {
+        await this.dbClient.update(photoClientRelations).set({ isLocked: false }).
+            where(
+                and(
+                    eq(photoClientRelations.clientId, clientId),
+                    eq(photoClientRelations.photoId, photoId)
+                ));
     }
 }
 

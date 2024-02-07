@@ -110,18 +110,6 @@ class PhotographerController {
         }
     }
 
-
-
-
-    // getAll = async ({ res, next }: { res: Response, next: NextFunction }) => {
-    //     try {
-    //         const photographers = await photographerRep.getPhotographers();
-    //         res.status(200).json(photographers);
-    //     }
-    //     catch (error) {
-    //         next(error);
-    //     }
-    // }
 }
 
 export default new PhotographerController();

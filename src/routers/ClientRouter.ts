@@ -1,17 +1,55 @@
 import { Router } from "express";
 import clientController from "../controllers/ClientController";
 import clientMiddleware from "../middlewares/ClientMiddleware";
+import uploadPhotos from "../middlewares/Multer";
+import authenticate from "../middlewares/Authentication";
 
 
 const clientRouter = Router();
 
-// clientRouter.get("/getAll", clientController.getClients);
 clientRouter.get("/prepareAuth",
     clientMiddleware.prepareAuthValidation,
-    clientController.prepareAuth)
+    clientController.prepareAuth
+);
 
 clientRouter.post("/auth",
     clientMiddleware.authValidation,
-    clientController.auth);
+    clientController.auth
+);
+
+clientRouter.post("/uploadSelfy",
+    authenticate,
+    uploadPhotos.any(),
+    clientController.uploadSelfy
+);
+
+clientRouter.get("/getSelfies",
+    authenticate,
+    clientController.getSelfies
+);
+
+clientRouter.post("/setNameEmail",
+    clientMiddleware.nameValidation,
+    clientMiddleware.emailValidation,
+    authenticate,
+    clientController.setNameEmail
+);
+
+clientRouter.post("/setName",
+    clientMiddleware.nameValidation,
+    authenticate,
+    clientController.setName
+);
+
+clientRouter.get("/getAlbumsPhotos",
+    authenticate,
+    clientController.getAlbumsPhotos
+);
+
+clientRouter.post("/unlockPhoto",
+    authenticate,
+    clientMiddleware.photoIdValidation,
+    clientController.unlockPhoto
+);
 
 export default clientRouter;

@@ -1,21 +1,19 @@
 import "dotenv/config";
-import { jwtOptionsCheck, saltRoundsCheck } from "./utils/checks/authOptionsChecks";
 import express from "express";
 import cors from "cors";
 import indexRep from "./database/repositories/IndexRep";
 import clientRouter from "./routers/ClientRouter";
 import photographerRouter from "./routers/PhotographerRouter";
 import errorHandlers from "./middlewares/ErrorHandlers";
-import { awsOptionsCheck } from "./utils/checks/awsOptionsChecks";
+import dotEnvCheck from "./utils/checks";
 import bot from "./services/TelegramBotService";
 
 
+dotEnvCheck();
 bot;
 
 const APP_PORT = Number(process.env.APP_PORT) || 80;
-jwtOptionsCheck();
-saltRoundsCheck();
-awsOptionsCheck();
+
 
 const app = express();
 

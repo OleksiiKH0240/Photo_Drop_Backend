@@ -17,6 +17,31 @@ class ClientMiddleware {
         }
         next();
     }
+
+    nameValidation = async (req: Request, res: Response, next: NextFunction) => {
+        const { name } = req.body;
+        if (name === undefined) {
+            return res.status(400).json({ message: "name request query parameters is missed." });
+        }
+        next();
+    }
+
+    emailValidation = async (req: Request, res: Response, next: NextFunction) => {
+        const { email } = req.body;
+        if (email === undefined) {
+            return res.status(400).json({ message: "email request query parameters is missed." });
+        }
+        next();
+    }
+
+    photoIdValidation = async (req: Request, res: Response, next: NextFunction) => {
+        const { photoId } = req.body;
+        if (photoId === undefined || Number.isNaN(Number(photoId))) {
+            return res.status(400).json({ message: "photoId request query parameters is missed or is not integer." });
+        }
+
+        next();
+    }
 }
 
 export default new ClientMiddleware();

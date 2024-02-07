@@ -1,5 +1,5 @@
 import mySchema from "./mySchema";
-import { integer, serial, varchar, index, boolean, unique } from "drizzle-orm/pg-core";
+import { integer, serial, varchar, index, unique } from "drizzle-orm/pg-core";
 import albums from "./albums";
 
 

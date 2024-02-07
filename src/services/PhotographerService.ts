@@ -4,7 +4,7 @@ import photographerRep from "../database/repositories/PhotographerRep";
 import jwtDataGetters from "../utils/jwtDataGetters";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { GetObjectCommand } from "@aws-sdk/client-s3";
-import { s3Client, BUCKET_NAME } from "../../config";
+import { s3Client, BUCKET_NAME } from "../config";
 
 
 class PhotographerService {
@@ -98,7 +98,7 @@ class PhotographerService {
 
         // console.log(photoIds, clientIds);
         // console.time("add photo client rel");
-        photographerRep.addPhotoClientRelations(photoIds, clientIds)
+        await photographerRep.addPhotoClientRelations(photoIds, clientIds)
         // console.timeEnd("add photo client rel");
 
     }

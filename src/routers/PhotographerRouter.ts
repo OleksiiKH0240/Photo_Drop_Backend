@@ -2,6 +2,7 @@ import { Router } from "express";
 import photographerController from "../controllers/PhotographerController";
 import authenticate from "../middlewares/Authentication";
 import photographerMiddleware from "../middlewares/PhotographerMiddleware";
+import uploadPhotos from "../middlewares/Multer";
 
 
 const photographerRouter = Router();
@@ -9,32 +10,35 @@ const photographerRouter = Router();
 photographerRouter.post("/signUp",
     photographerMiddleware.authValidation,
     photographerMiddleware.usernameValidation,
-    photographerController.signUp);
+    photographerController.signUp
+);
 
 photographerRouter.post("/logIn", photographerMiddleware.authValidation, photographerController.logIn);
-
-// photographerRouter.get("/getAll", authenticate, photographerController.getAll);
 
 photographerRouter.post("/createAlbum",
     authenticate,
     photographerMiddleware.createAlbumValidation,
-    photographerController.createAlbum);
+    photographerController.createAlbum
+);
 
 photographerRouter.post("/uploadPhotos",
     authenticate,
     photographerMiddleware.uploadPhotosValidation,
-    photographerMiddleware.uploadPhotos,
-    photographerController.uploadPhotos);
+    uploadPhotos.any(),
+    photographerController.uploadPhotos
+);
 
 photographerRouter.get("/getAllAlbums",
     authenticate,
     photographerController.getAllAlbums
-)
+);
 
 photographerRouter.get("/getPhotosByAlbumId",
     authenticate,
     photographerMiddleware.albumIdValidation,
     photographerController.getPhotosByAlbumId
-)
+);
+
+// TODO: add possibility to add client to already created album.
 
 export default photographerRouter;

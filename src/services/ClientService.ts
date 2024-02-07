@@ -116,20 +116,19 @@ class ClientService {
         const albumsPhotosRaw = await clientRep.getAllAlbums(clientId);
 
         const albumsPhotosMap = Map.groupBy(albumsPhotosRaw, ({ albumId }) => albumId);
-        let albumId, albumName, albumLocation, album;
-        const albumsPhotos = [];
+        const albums = [];
 
         for (const albumPhotos of albumsPhotosMap.values()) {
-            ({ albumId, albumName, albumLocation } = albumPhotos[0]);
-            album = {
+            const { albumId, albumName, albumLocation } = albumPhotos[0];
+            const album = {
                 albumId, albumName, albumLocation,
                 photos: await Promise.all(albumPhotos.map(generateSignedPhotos))
             }
 
-            albumsPhotos.push(album);
+            albums.push(album);
         }
 
-        return albumsPhotos;
+        return albums;
     }
 
     getAlbumById = async (token: string, albumId: number) => {

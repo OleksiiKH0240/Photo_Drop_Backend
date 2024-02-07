@@ -5,7 +5,7 @@ import jwtDataGetters from "../utils/jwtDataGetters";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { GetObjectCommand } from "@aws-sdk/client-s3";
 import { s3Client, BUCKET_NAME } from "../config";
-import { generateSignedUrl } from "utils/s3Bucket";
+import { generateSignedPhotos, generateSignedUrl } from "utils/s3Bucket";
 
 
 class PhotographerService {
@@ -80,7 +80,20 @@ class PhotographerService {
 
     getAllAlbums = async (token: string) => {
         const photographerId = jwtDataGetters.getPhotographerId(token);
-        const albums = await photographerRep.getAlbumsByPhotographerId(photographerId);
+        const albumsRaw = await photographerRep.getAlbumsByPhotographerId(photographerId);
+
+        const albumsMap = Map.groupBy(albumsRaw, ({ albumId }) => albumId);
+        const albums = [];
+
+        for (const albumList of albumsMap.values()) {
+            const { albumId, albumName, albumLocation } = albumList[0];
+            const album = {
+                albumId, albumName, albumLocation,
+                photos: await Promise.all(albumList.map(generateSignedPhotos))
+            };
+
+            albums.push(album);
+        }
         return albums;
     }
 

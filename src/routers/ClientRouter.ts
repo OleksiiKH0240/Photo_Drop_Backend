@@ -7,7 +7,7 @@ import authenticate from "../middlewares/Authentication";
 
 const clientRouter = Router();
 
-clientRouter.get("/prepareAuth",
+clientRouter.get("/prepare-auth",
     clientMiddleware.prepareAuthValidation,
     clientController.prepareAuth
 );
@@ -17,47 +17,47 @@ clientRouter.post("/auth",
     clientController.auth
 );
 
-clientRouter.post("/uploadSelfy",
+clientRouter.post("/upload-selfy",
     authenticate,
     uploadPhotos.any(),
     clientController.uploadSelfy
 );
 
-clientRouter.get("/getSelfies",
+clientRouter.get("/get-selfies",
     authenticate,
     clientController.getSelfies
 );
 
-clientRouter.post("/setNameEmail",
+clientRouter.post("/set-name-email",
     authenticate,
     clientMiddleware.nameValidation,
     clientMiddleware.emailValidation,
     clientController.setNameEmail
 );
 
-clientRouter.post("/setName",
+clientRouter.post("/set-name",
     authenticate,
     clientMiddleware.nameValidation,
     clientController.setName
 );
 
-clientRouter.get("/getAllAlbums",
+clientRouter.get("/get-all-albums",
     authenticate,
     clientController.getAllAlbums
 );
 
-clientRouter.get("/getAlbumById",
+clientRouter.get("/get-album-by-id",
     authenticate,
     clientMiddleware.albumIdValidation,
     clientController.getAlbumById
 );
 
-clientRouter.get("/getAllPhotos",
+clientRouter.get("/get-all-photos",
     authenticate,
     clientController.getAllPhotos
 );
 
-clientRouter.post("/unlockPhoto",
+clientRouter.post("/unlock-photo",
     authenticate,
     clientMiddleware.photoIdValidation,
     clientController.unlockPhoto

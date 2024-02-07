@@ -7,39 +7,42 @@ import uploadPhotos from "../middlewares/Multer";
 
 const photographerRouter = Router();
 
-photographerRouter.post("/signUp",
+photographerRouter.post("/sign-up",
     photographerMiddleware.authValidation,
     photographerMiddleware.usernameValidation,
     photographerController.signUp
 );
 
-photographerRouter.post("/logIn", photographerMiddleware.authValidation, photographerController.logIn);
+photographerRouter.post("/log-in",
+    photographerMiddleware.authValidation,
+    photographerController.logIn
+);
 
-photographerRouter.post("/createAlbum",
+photographerRouter.post("/create-album",
     authenticate,
     photographerMiddleware.createAlbumValidation,
     photographerController.createAlbum
 );
 
-photographerRouter.post("/uploadPhotos",
+photographerRouter.post("/upload-photos",
     authenticate,
     photographerMiddleware.uploadPhotosValidation,
     uploadPhotos.any(),
     photographerController.uploadPhotos
 );
 
-photographerRouter.post("/addClientsToPhotos",
+photographerRouter.post("/add-clients-to-photos",
     authenticate,
     photographerMiddleware.addClientsToPhotosValidation,
     photographerController.addClientsToPhotos
 );
 
-photographerRouter.get("/getAllAlbums",
+photographerRouter.get("/get-all-albums",
     authenticate,
     photographerController.getAllAlbums
 );
 
-photographerRouter.get("/getPhotosByAlbumId",
+photographerRouter.get("/get-photos-by-album-id",
     authenticate,
     photographerMiddleware.albumIdValidation,
     photographerController.getPhotosByAlbumId

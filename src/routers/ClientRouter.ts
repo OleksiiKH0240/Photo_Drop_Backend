@@ -29,15 +29,15 @@ clientRouter.get("/getSelfies",
 );
 
 clientRouter.post("/setNameEmail",
+    authenticate,
     clientMiddleware.nameValidation,
     clientMiddleware.emailValidation,
-    authenticate,
     clientController.setNameEmail
 );
 
 clientRouter.post("/setName",
-    clientMiddleware.nameValidation,
     authenticate,
+    clientMiddleware.nameValidation,
     clientController.setName
 );
 

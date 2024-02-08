@@ -46,6 +46,19 @@ class ClientController {
         }
     }
 
+    getClient = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const token = req.headers.authorization!;
+
+            const client = await clientService.getClient(token);
+
+            res.status(200).json(client);
+        }
+        catch (error) {
+            next(error);
+        }
+    }
+
     uploadSelfy = async (req: Request & { photoS3Keys?: string[] }, res: Response, next: NextFunction) => {
         try {
             if (req.files === undefined) {

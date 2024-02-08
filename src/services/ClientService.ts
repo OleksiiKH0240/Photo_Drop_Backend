@@ -79,6 +79,12 @@ class ClientService {
         await clientRep.addSelfy(clientId, photoS3Keys[0]);
     }
 
+    getClient = async (token: string) => {
+        const username = jwtDataGetters.getUsername(token);
+        const client = await clientRep.getClientByUsername(username);
+        return client;
+    }
+
     getSelfies = async (token: string) => {
         const clientId = jwtDataGetters.getClientId(token);
         const rawResult = await clientRep.getSelfiesByClientId(clientId);

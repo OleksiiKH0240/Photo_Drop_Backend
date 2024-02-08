@@ -17,6 +17,11 @@ clientRouter.post("/auth",
     clientController.auth
 );
 
+clientRouter.get("/get-client",
+    authenticate,
+    clientController.getClient
+);
+
 clientRouter.post("/upload-selfy",
     authenticate,
     uploadPhotos.any(),
@@ -28,14 +33,14 @@ clientRouter.get("/get-selfies",
     clientController.getSelfies
 );
 
-clientRouter.post("/set-name-email",
+clientRouter.put("/set-name-email",
     authenticate,
     clientMiddleware.nameValidation,
     clientMiddleware.emailValidation,
     clientController.setNameEmail
 );
 
-clientRouter.post("/set-name",
+clientRouter.put("/set-name",
     authenticate,
     clientMiddleware.nameValidation,
     clientController.setName
@@ -57,7 +62,7 @@ clientRouter.get("/get-all-photos",
     clientController.getAllPhotos
 );
 
-clientRouter.post("/unlock-photo",
+clientRouter.put("/unlock-photo",
     authenticate,
     clientMiddleware.photoIdValidation,
     clientController.unlockPhoto

@@ -1,7 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
-import indexRep from "./database/repositories/IndexRep";
+import indexRep from "./database/repositories";
 import clientRouter from "./routers/ClientRouter";
 import photographerRouter from "./routers/PhotographerRouter";
 import errorHandlers from "./middlewares/ErrorHandlers";

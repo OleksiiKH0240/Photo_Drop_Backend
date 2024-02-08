@@ -113,20 +113,11 @@ class ClientService {
     getAllAlbums = async (token: string) => {
         const clientId = jwtDataGetters.getClientId(token);
 
-        const albumsPhotosRaw = await clientRep.getAllAlbums(clientId);
-
-        const albumsPhotosMap = Map.groupBy(albumsPhotosRaw, ({ albumId }) => albumId);
-        const albums = [];
-
-        for (const albumPhotos of albumsPhotosMap.values()) {
-            const { albumId, albumName, albumLocation } = albumPhotos[0];
-            const album = {
-                albumId, albumName, albumLocation,
-                photos: await Promise.all(albumPhotos.map(generateSignedPhotos))
-            }
-
-            albums.push(album);
-        }
+        const albumsRaw = await clientRep.getAllAlbums(clientId);
+        const albums = await Promise.all(albumsRaw.map(async (el) => ({
+            ...el,
+            signedUrl: await generateSignedUrl(el.photoS3Key)
+        })))
 
         return albums;
     }

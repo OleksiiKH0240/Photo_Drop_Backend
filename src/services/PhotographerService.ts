@@ -80,20 +80,7 @@ class PhotographerService {
 
     getAllAlbums = async (token: string) => {
         const photographerId = jwtDataGetters.getPhotographerId(token);
-        const albumsRaw = await photographerRep.getAlbumsByPhotographerId(photographerId);
-
-        const albumsMap = Map.groupBy(albumsRaw, ({ albumId }) => albumId);
-        const albums = [];
-
-        for (const albumList of albumsMap.values()) {
-            const { albumId, albumName, albumLocation } = albumList[0];
-            const album = {
-                albumId, albumName, albumLocation,
-                photos: await Promise.all(albumList.map(generateSignedPhotos))
-            };
-
-            albums.push(album);
-        }
+        const albums = await photographerRep.getAlbumsByPhotographerId(photographerId);
         return albums;
     }
 

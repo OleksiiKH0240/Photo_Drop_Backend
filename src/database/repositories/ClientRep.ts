@@ -1,6 +1,6 @@
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
 import { db } from "../databaseConnection";
-import { and, eq } from "drizzle-orm"
+import { and, eq, max, sql } from "drizzle-orm"
 import clients from "../schemas/clients";
 import albumClientRelations from "../schemas/albumClientRelations";
 import selfies from "../schemas/selfies";
@@ -76,10 +76,11 @@ class ClientsRep {
     }
 
     getAllAlbums = async (clientId: number) => {
-        const result = await this.dbClient.select({
+        const unfilteredResult = this.dbClient.select({
             albumId: albums.albumId,
             albumName: albums.albumName,
             albumLocation: albums.albumLocation,
+            lastPhotoId: sql<number>`max(${albumsPhotos.photoId}) over(partition by ${albums.albumId})`.as("last_photo_id"),
             photoId: albumsPhotos.photoId,
             photoS3Key: albumsPhotos.photoS3Key,
             isLocked: photoClientRelations.isLocked
@@ -91,7 +92,19 @@ class ClientsRep {
                 eq(photoClientRelations.photoId, albumsPhotos.photoId),
                 eq(photoClientRelations.clientId, albumClientRelations.clientId),
             )).
-            where(eq(albumClientRelations.clientId, clientId));
+            where(eq(albumClientRelations.clientId, clientId)).
+            as("unfiltered_result");
+
+        const result = await this.dbClient.select({
+            albumId: unfilteredResult.albumId,
+            albumName: unfilteredResult.albumName,
+            albumLocation: unfilteredResult.albumLocation,
+            lastPhotoId: unfilteredResult.lastPhotoId,
+            photoS3Key: unfilteredResult.photoS3Key,
+            isLocked: unfilteredResult.isLocked
+        }).
+            from(unfilteredResult).
+            where(eq(unfilteredResult.photoId, unfilteredResult.lastPhotoId));
 
         // const result = Object.groupBy(rawResult, ({ albumId }) => albumId);
         return result;

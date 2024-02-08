@@ -73,12 +73,9 @@ class PhotographersRep {
         return await this.dbClient.select({
             albumId: albums.albumId,
             albumName: albums.albumName,
-            albumLocation: albums.albumLocation,
-            photoId: albumsPhotos.photoId,
-            photoS3Key: albumsPhotos.photoS3Key
+            albumLocation: albums.albumLocation
         }).
             from(albums).
-            innerJoin(albumsPhotos, eq(albumsPhotos.albumId, albums.albumId)).
             where(eq(albums.photographerId, photographerId));
     }
 

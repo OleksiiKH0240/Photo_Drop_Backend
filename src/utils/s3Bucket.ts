@@ -10,12 +10,15 @@ export const generateSignedUrl = async (photoS3Key: string) => {
     return signedUrl;
 }
 
-export const generateSignedPhotos = async ({ photoId, photoS3Key, isLocked }:
+export const generateSignedPhotos = async ({ photoId, photoS3Key, watermarkPhotoS3Key, isLocked }:
     {
         photoId: number,
         photoS3Key: string,
-        isLocked?: boolean
+        watermarkPhotoS3Key: string,
+        isLocked: boolean
     }) => {
-    const signedUrl = await generateSignedUrl(photoS3Key);
-    return { photoId, photoS3Key, signedUrl, isLocked };
+
+    const s3Key = (isLocked === true ? watermarkPhotoS3Key : photoS3Key);
+    const signedUrl = await generateSignedUrl(s3Key);
+    return { photoId, s3Key, signedUrl, isLocked };
 }

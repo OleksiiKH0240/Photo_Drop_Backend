@@ -117,6 +117,7 @@ class ClientsRep {
             albumLocation: albums.albumLocation,
             photoId: albumsPhotos.photoId,
             photoS3Key: albumsPhotos.photoS3Key,
+            watermarkPhotoS3Key: albumsPhotos.watermarkPhotoS3Key,
             isLocked: photoClientRelations.isLocked
         }).
             from(albumClientRelations).
@@ -138,6 +139,7 @@ class ClientsRep {
         return await this.dbClient.select({
             photoId: albumsPhotos.photoId,
             photoS3Key: albumsPhotos.photoS3Key,
+            watermarkPhotoS3Key: albumsPhotos.watermarkPhotoS3Key,
             isLocked: photoClientRelations.isLocked
         }).from(photoClientRelations).
             innerJoin(albumsPhotos, eq(albumsPhotos.photoId, photoClientRelations.photoId)).

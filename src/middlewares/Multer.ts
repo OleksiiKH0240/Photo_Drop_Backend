@@ -16,7 +16,7 @@ const uploadPhotos = multer({
             const jwtToken = req.headers.authorization;
             const username = jwtDataGetters.getUsername(jwtToken!);
 
-            const photoS3Key = `${username}/${file.originalname}`;
+            const photoS3Key = `withoutWatermark/${username}/${file.originalname}`;
 
             if (req.photoS3Keys === undefined) {
                 req.photoS3Keys = [photoS3Key,];
@@ -24,9 +24,8 @@ const uploadPhotos = multer({
             else {
                 req.photoS3Keys.push(photoS3Key);
             }
-
             cb(null, photoS3Key)
-        }
+        },
     })
 });
 

@@ -1,6 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import { addClientsToPhotosType, authInputType, createAlbumInputType } from "../types/PhotographerControllerTypes";
 import photographerService from "../services/PhotographerService";
+import { BUCKET_NAME, s3Client } from "config";
+import { GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
+import sharp from "sharp";
 
 
 

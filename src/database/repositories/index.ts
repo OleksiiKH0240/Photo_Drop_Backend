@@ -20,7 +20,7 @@ class InitialRep {
 
     migrate = async () => {
         await migrate(this.dbClient, { migrationsFolder: "./drizzle" });
-        console.log("migrations were done successfully.")
+        console.log("migrations were done successfully.");
     }
 }
 

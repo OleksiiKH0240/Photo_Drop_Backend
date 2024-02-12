@@ -79,8 +79,12 @@ class PhotographersRep {
             where(eq(albums.photographerId, photographerId));
     }
 
-    addPhotosToAlbum = async (albumId: number, photoS3Keys: string[]) => {
-        const valsToInsert = photoS3Keys.map((photoS3Key) => ({ albumId, photoS3Key }));
+    addPhotosToAlbum = async (albumId: number, photoS3Keys: string[], watermarkPhotoS3Keys: string[]) => {
+        const valsToInsert = photoS3Keys.map((photoS3Key, index) => ({
+            albumId,
+            photoS3Key,
+            watermarkPhotoS3Key: watermarkPhotoS3Keys[index]
+        }));
         return await this.dbClient.insert(albumsPhotos).values(valsToInsert).onConflictDoNothing().
             returning({ photoId: albumsPhotos.photoId });
     }

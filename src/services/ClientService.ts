@@ -2,9 +2,6 @@ import jwt from "jsonwebtoken";
 import clientRep from "../database/repositories/ClientRep";
 import jwtDataGetters from "../utils/jwtDataGetters";
 import { getBotUsername } from "./TelegramBotService"
-import { GetObjectCommand, ListObjectsCommand } from "@aws-sdk/client-s3";
-import { BUCKET_NAME, s3Client } from "../config";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { generateSignedPhotos, generateSignedUrl } from "utils/s3Bucket";
 import "core-js";
 

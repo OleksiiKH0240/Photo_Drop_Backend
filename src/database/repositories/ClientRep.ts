@@ -5,9 +5,8 @@ import clients from "../schemas/clients";
 import albumClientRelations from "../schemas/albumClientRelations";
 import selfies from "../schemas/selfies";
 import albums from "../schemas/albums";
-import photos from "../schemas/photos";
+import albumsPhotos from "../schemas/albumsPhotos";
 import photoClientRelations from "database/schemas/photoClientRelations";
-import albumPhotoRelations from "database/schemas/albumPhotoRelations";
 
 
 class ClientsRep {
@@ -81,29 +80,28 @@ class ClientsRep {
             albumId: albums.albumId,
             albumName: albums.albumName,
             albumLocation: albums.albumLocation,
-            lastPhotoUpdated: sql<number>`max(${photos.lastUpdated}) over(partition by ${albums.albumId}, ${photoClientRelations.isLocked})`.as("last_photo_updated"),
-            lastUpdated: photos.lastUpdated,
-            photoId: photos.photoId,
-            photoS3Key: photos.photoS3Key,
-            hasWatermark: photos.hasWatermark,
-            watermarkPhotoS3Key: photos.watermarkPhotoS3Key,
+            lastPhotoUpdated: sql<number>`max(${albumsPhotos.lastUpdated}) over(partition by ${albums.albumId}, ${photoClientRelations.isLocked})`.as("last_photo_updated"),
+            lastUpdated: albumsPhotos.lastUpdated,
+            photoId: albumsPhotos.photoId,
+            photoS3Key: albumsPhotos.photoS3Key,
+            hasWatermark: albumsPhotos.hasWatermark,
+            watermarkPhotoS3Key: albumsPhotos.watermarkPhotoS3Key,
             isLocked: photoClientRelations.isLocked
         }).
             from(albumClientRelations).
             innerJoin(albums, eq(albums.albumId, albumClientRelations.albumId)).
-            innerJoin(albumPhotoRelations, eq(albumPhotoRelations.albumId, albumClientRelations.albumId)).
-            innerJoin(photos, eq(photos.photoId, albumPhotoRelations.photoId)).
+            innerJoin(albumsPhotos, eq(albumsPhotos.albumId, albums.albumId)).
             innerJoin(photoClientRelations, and(
-                eq(photoClientRelations.photoId, photos.photoId),
+                eq(photoClientRelations.photoId, albumsPhotos.photoId),
                 eq(photoClientRelations.clientId, albumClientRelations.clientId),
             )).
             where(
                 and(
                     eq(albumClientRelations.clientId, clientId),
                     or(
-                        eq(photos.hasWatermark, true),
+                        eq(albumsPhotos.hasWatermark, true),
                         and(
-                            eq(photos.hasWatermark, false),
+                            eq(albumsPhotos.hasWatermark, false),
                             eq(photoClientRelations.isLocked, false)
                         )
                     )
@@ -134,18 +132,17 @@ class ClientsRep {
             albumId: albums.albumId,
             albumName: albums.albumName,
             albumLocation: albums.albumLocation,
-            photoId: photos.photoId,
-            photoS3Key: photos.photoS3Key,
-            watermarkPhotoS3Key: photos.watermarkPhotoS3Key,
-            hasWatermark: photos.hasWatermark,
+            photoId: albumsPhotos.photoId,
+            photoS3Key: albumsPhotos.photoS3Key,
+            watermarkPhotoS3Key: albumsPhotos.watermarkPhotoS3Key,
+            hasWatermark: albumsPhotos.hasWatermark,
             isLocked: photoClientRelations.isLocked
         }).
             from(albumClientRelations).
             innerJoin(albums, eq(albums.albumId, albumClientRelations.albumId)).
-            innerJoin(albumPhotoRelations, eq(albumPhotoRelations.albumId, albumClientRelations.albumId)).
-            innerJoin(photos, eq(photos.photoId, albumPhotoRelations.photoId)).
+            innerJoin(albumsPhotos, eq(albumsPhotos.albumId, albums.albumId)).
             innerJoin(photoClientRelations, and(
-                eq(photoClientRelations.photoId, photos.photoId),
+                eq(photoClientRelations.photoId, albumsPhotos.photoId),
                 eq(photoClientRelations.clientId, albumClientRelations.clientId),
             )).
             where(and(
@@ -158,13 +155,13 @@ class ClientsRep {
 
     getAllPhotos = async (clientId: number) => {
         return await this.dbClient.select({
-            photoId: photos.photoId,
-            photoS3Key: photos.photoS3Key,
-            watermarkPhotoS3Key: photos.watermarkPhotoS3Key,
-            hasWatermark: photos.hasWatermark,
+            photoId: albumsPhotos.photoId,
+            photoS3Key: albumsPhotos.photoS3Key,
+            watermarkPhotoS3Key: albumsPhotos.watermarkPhotoS3Key,
+            hasWatermark: albumsPhotos.hasWatermark,
             isLocked: photoClientRelations.isLocked
         }).from(photoClientRelations).
-            innerJoin(photos, eq(photos.photoId, photoClientRelations.photoId)).
+            innerJoin(albumsPhotos, eq(albumsPhotos.photoId, photoClientRelations.photoId)).
             where(eq(photoClientRelations.clientId, clientId));
     }
 

@@ -1,7 +1,7 @@
 import mySchema from "./mySchema";
 import { integer, index, boolean, unique } from "drizzle-orm/pg-core";
 import clients from "./clients";
-import albumsPhoto from "./photos";
+import albumsPhoto from "./albumsPhotos";
 
 
 const photoClientRelations = mySchema.table("photo_client_relations", {

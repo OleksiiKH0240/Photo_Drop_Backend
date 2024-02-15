@@ -91,11 +91,10 @@ class PhotographerService {
         );
 
         // console.time("add photos to album, get photos ids");
-        await photographerRep.addPhotos(photoS3Keys, watermarkPhotoS3Keys);
+        await photographerRep.addPhotos(albumId, photoS3Keys, watermarkPhotoS3Keys);
 
         const photoIds = (await photographerRep.getPhotosByPhotoS3Keys(photoS3Keys)).map(el => el.photoId);
         console.log("photoIds.length", photoIds.length);
-        await photographerRep.addAlbumPhotoRelations(albumId, photoIds);
         // if (photoIds.length === 0) {
         // }
         // console.timeEnd("add photos to album, get photos ids");

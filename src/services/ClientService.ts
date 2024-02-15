@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 import clientRep from "../database/repositories/ClientRep";
 import jwtDataGetters from "../utils/jwtDataGetters";
 import { getBotUsername } from "./TelegramBotService"
-import { GetObjectCommand } from "@aws-sdk/client-s3";
+import { GetObjectCommand, ListObjectsCommand } from "@aws-sdk/client-s3";
 import { BUCKET_NAME, s3Client } from "../config";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { generateSignedPhotos, generateSignedUrl } from "utils/s3Bucket";
@@ -120,9 +120,20 @@ class ClientService {
         const clientId = jwtDataGetters.getClientId(token);
 
         const albumsRaw = await clientRep.getAllAlbums(clientId);
-        const albums = await Promise.all(albumsRaw.map(async (el) => ({
-            ...el,
-            signedUrl: await generateSignedUrl(el.photoS3Key)
+        const albums = (await Promise.all(albumsRaw.map(async (el) => {
+            const partEl = {
+                albumId: el.albumId,
+                albumName: el.albumName,
+                albumLocation: el.albumLocation,
+                photoS3Key: el.photoS3Key,
+                watermarkPhotoS3Key: el.watermarkPhotoS3Key,
+                hasWatermark: el.hasWatermark,
+                isLocked: el.isLocked
+            }
+            return {
+                ...partEl,
+                signedUrl: (await generateSignedPhotos(el))?.signedUrl
+            };
         })))
 
         return albums;
@@ -131,13 +142,16 @@ class ClientService {
     getAlbumById = async (token: string, albumId: number) => {
         const clientId = jwtDataGetters.getClientId(token);
         const albumPhotosRaw = await clientRep.getAlbumById(clientId, albumId);
-
+        console.log("albumPhotosRaw.length", albumPhotosRaw.length);
+        console.time("get photos")
         const { albumName, albumLocation } = albumPhotosRaw[0];
+        const photos = (await Promise.all(albumPhotosRaw.map(generateSignedPhotos))).filter(el => el !== undefined);
         const album = {
             albumId, albumName, albumLocation,
-            photos: await Promise.all(albumPhotosRaw.map(generateSignedPhotos))
+            photos
         }
-
+        console.timeEnd("get photos")
+        console.log("photos.length", photos.length);
         return album;
     }
 
@@ -145,7 +159,9 @@ class ClientService {
         const clientId = jwtDataGetters.getClientId(token);
 
         const photosRaw = await clientRep.getAllPhotos(clientId);
-        const photos = await Promise.all(photosRaw.map(generateSignedPhotos));
+        console.log("photosRaw.length", photosRaw.length);
+        const photos = (await Promise.all(photosRaw.map(generateSignedPhotos))).filter(el => el !== undefined);
+        console.log("photos.length", photos.length);
 
         return photos;
     }

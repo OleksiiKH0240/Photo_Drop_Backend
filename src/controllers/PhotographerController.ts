@@ -67,6 +67,7 @@ class PhotographerController {
         try {
             // console.log(new Date().toUTCString(), new Date().getMilliseconds());
             // console.log(req.query);
+            // console.log(req.files);
             if (req.files === undefined) {
                 return res.status(400).json({ message: "no files were uploaded." });
             }

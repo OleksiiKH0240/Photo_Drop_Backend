@@ -1,5 +1,5 @@
 import { drizzle } from "drizzle-orm/node-postgres";
-import { Pool } from "pg";
+import { Pool, Client } from "pg";
 import databaseOptionsCheck from "../utils/checks/databaseOptionsChecks";
 
 

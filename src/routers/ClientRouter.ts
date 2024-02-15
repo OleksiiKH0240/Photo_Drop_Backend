@@ -24,7 +24,7 @@ clientRouter.get("/get-client",
 
 clientRouter.post("/upload-selfy",
     authenticate,
-    uploadPhotos.any(),
+    uploadPhotos,
     clientController.uploadSelfy
 );
 

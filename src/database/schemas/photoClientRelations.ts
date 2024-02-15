@@ -1,7 +1,7 @@
 import mySchema from "./mySchema";
 import { integer, index, boolean, unique } from "drizzle-orm/pg-core";
 import clients from "./clients";
-import albumsPhoto from "./albumsPhotos";
+import albumsPhoto from "./photos";
 
 
 const photoClientRelations = mySchema.table("photo_client_relations", {
@@ -11,6 +11,7 @@ const photoClientRelations = mySchema.table("photo_client_relations", {
 }, (table) => ({
     photoClientRelationsPhotoIdIdx: index("photo_client_relations_photo_id_idx").on(table.photoId),
     photoClientRelationsClientIdIdx: index("photo_client_relations_client_id_idx").on(table.clientId),
+    photoClientRelationsIsLockedIdx: index("photo_client_relations_is_locked_idx").on(table.isLocked),
     photoClientRelationsUniqueCol: unique("photo_client_relations_unique_col").on(table.photoId, table.clientId)
 }))
 

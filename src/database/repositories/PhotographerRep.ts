@@ -1,12 +1,13 @@
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
 import { db } from "../databaseConnection";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import photographers from "../schemas/photographers";
 import albums from "../schemas/albums";
-import albumsPhotos from "../schemas/albumsPhotos";
+import photos from "../schemas/photos";
 import albumClientRelations from "../schemas/albumClientRelations";
 import photoClientRelations from "../schemas/photoClientRelations";
 import fastCartesian from "fast-cartesian"
+import albumPhotoRelations from "database/schemas/albumPhotoRelations";
 
 
 class PhotographersRep {
@@ -79,21 +80,38 @@ class PhotographersRep {
             where(eq(albums.photographerId, photographerId));
     }
 
-    addPhotosToAlbum = async (albumId: number, photoS3Keys: string[], watermarkPhotoS3Keys: string[]) => {
+    addPhotos = async (photoS3Keys: string[], watermarkPhotoS3Keys: string[]) => {
         const valsToInsert = photoS3Keys.map((photoS3Key, index) => ({
-            albumId,
             photoS3Key,
             watermarkPhotoS3Key: watermarkPhotoS3Keys[index]
         }));
-        return await this.dbClient.insert(albumsPhotos).values(valsToInsert).onConflictDoNothing().
-            returning({ photoId: albumsPhotos.photoId });
+        return await this.dbClient.insert(photos).values(valsToInsert).onConflictDoNothing()
+    }
+
+    getPhotosByPhotoS3Keys = async (photoS3Keys: string[]) => {
+        const result = await Promise.all(photoS3Keys.
+            map(async photoS3Key =>
+                (await this.dbClient.select().
+                    from(photos).
+                    where(eq(photos.photoS3Key, photoS3Key))
+                )[0])
+        );
+        return result;
+    }
+
+    addAlbumPhotoRelations = async (albumId: number, photosIds: number[]) => {
+        const valsToInsert = photosIds.map(el => ({ albumId, photoId: el }));
+        await this.dbClient.insert(albumPhotoRelations).values(valsToInsert).onConflictDoNothing();
     }
 
     getPhotosByAlbumId = async (albumId: number) => {
         return await this.dbClient.select({
-            photoId: albumsPhotos.photoId,
-            photoS3Key: albumsPhotos.photoS3Key
-        }).from(albumsPhotos).where(eq(albumsPhotos.albumId, albumId));
+            photoId: photos.photoId,
+            photoS3Key: photos.photoS3Key
+        }).
+            from(photos).
+            innerJoin(albumPhotoRelations, eq(albumPhotoRelations.photoId, photos.photoId)).
+            where(eq(albumPhotoRelations.albumId, albumId));
     }
 
     addPhotoClientRelations = async (photosIds: number[], clientsIds: number[]) => {

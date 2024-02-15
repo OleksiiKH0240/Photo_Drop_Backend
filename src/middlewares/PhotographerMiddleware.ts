@@ -56,7 +56,7 @@ class PhotographerMiddleware {
         if ((await photographerRep.getAlbumById(albumId)).length === 0) {
             return res.status(400).json({ message: "album with given albumId does not exist." })
         }
-
+        // console.log(req);
         // console.log(new Date().toUTCString(), new Date().getMilliseconds());
         next();
     }

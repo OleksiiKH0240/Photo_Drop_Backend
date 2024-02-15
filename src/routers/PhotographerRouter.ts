@@ -27,7 +27,7 @@ photographerRouter.post("/create-album",
 photographerRouter.post("/upload-photos",
     authenticate,
     photographerMiddleware.uploadPhotosValidation,
-    uploadPhotos.any(),
+    uploadPhotos,
     photographerController.uploadPhotos
 );
 

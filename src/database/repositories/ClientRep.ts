@@ -1,6 +1,6 @@
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
 import { db } from "../databaseConnection";
-import { and, asc, eq, or, sql } from "drizzle-orm"
+import { and, asc, desc, eq, or, sql } from "drizzle-orm"
 import clients from "../schemas/clients";
 import albumClientRelations from "../schemas/albumClientRelations";
 import selfies from "../schemas/selfies";
@@ -61,6 +61,14 @@ class ClientsRep {
 
     addSelfy = async (clientId: number, photoS3Key: string) => {
         await this.dbClient.insert(selfies).values({ clientId, photoS3Key }).onConflictDoNothing();
+    }
+
+    getSelfy = async (clientId: number) => {
+        return (await this.dbClient.select().
+            from(selfies).
+            where(eq(selfies.clientId, clientId)).
+            orderBy(desc(selfies.selfyId)).
+            limit(1))[0];
     }
 
     getSelfiesByClientId = async (clientId: number) => {
